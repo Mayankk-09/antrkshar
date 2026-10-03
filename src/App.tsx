@@ -99,7 +99,15 @@ export default function App() {
   const galleryX = useTransform(smoothY, [0.3, 1], ['10%', '-80%']);
 
   const [isPlaying, setIsPlaying] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Play audio on first user interaction to bypass browser autoplay blocks
   useEffect(() => {
@@ -232,10 +240,13 @@ export default function App() {
         </div>
 
         {/* Horizontal scrolling film strip */}
-        <div className="w-full overflow-hidden h-[40vh] md:h-[60vh] mt-10">
-          <motion.div style={{ x: galleryX }} className="flex gap-4 md:gap-8 h-full px-6 md:px-20 items-center">
+        <div className="w-full h-[40vh] md:h-[60vh] mt-10 overflow-hidden">
+          <motion.div 
+            style={isMobile ? {} : { x: galleryX }} 
+            className={`flex gap-4 md:gap-8 h-full items-center ${isMobile ? 'overflow-x-auto overflow-y-hidden snap-x snap-mandatory px-6 no-scrollbar w-full' : 'px-6 md:px-20'}`}
+          >
             {galleryImages.map((src, idx) => (
-              <div key={idx} className="relative h-full flex-shrink-0 group overflow-hidden">
+              <div key={idx} className={`relative h-full flex-shrink-0 group overflow-hidden ${isMobile ? 'snap-center' : ''}`}>
                 {/* Images aspect ratio ranges to look editorial */}
                 <img 
                   src={src} 
